@@ -98,7 +98,31 @@ describe("blog with most likes", () => {
 	test("is found correctly", () => {
 		const blogWithMostLikes = listWithManyBlogs[2];
 
-		const result = listHelper.mostLikes(listWithManyBlogs);
+		const result = listHelper.favoriteBlog(listWithManyBlogs);
 		expect(result).toEqual(blogWithMostLikes);
+	});
+});
+
+describe("writer with most posts", () => {
+	test("is found correctly", () => {
+		const writerWithMostPosts = {
+			author: "Robert C. Martin",
+			blogs: 3
+		};
+
+		const result = listHelper.mostPosts(listWithManyBlogs);
+		expect(result).toEqual(writerWithMostPosts);
+	});
+});
+
+describe("writer with most likes", () => {
+	test("is found correctly", () => {
+		const writerWithMostLikes = {
+			author: "Edsger W. Dijkstra",
+			likes: 17
+		};
+
+		const result = listHelper.mostLikes(listWithManyBlogs);
+		expect(result).toEqual(writerWithMostLikes);
 	});
 });
