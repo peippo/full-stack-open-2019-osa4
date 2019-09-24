@@ -16,6 +16,13 @@ test("Correct number of blogs returned", async () => {
 	expect(response.body.length).toBe(2);
 });
 
+test("ID field is named 'id'", async () => {
+	const response = await api.get("/api/blogs");
+	response.body.map(blog => {
+		expect(blog.id).toBeDefined();
+	});
+});
+
 afterAll(() => {
 	mongoose.connection.close();
 });
