@@ -116,6 +116,35 @@ test("Blog posts can be removed", async () => {
 	await api.delete(`/api/blogs/${blogId}`).expect(204);
 });
 
+// FIXME: Returns 'null' on all fields?
+
+// test("Blog posts can be modified", async () => {
+// 	const newBlog = {
+// 		title: "React v16.9.0 and the Roadmap Update",
+// 		author: "Dan Abramov and Brian Vaughn",
+// 		url: "https://reactjs.org/blog/2019/08/08/react-v16.9.0.html",
+// 		likes: "0"
+// 	};
+
+// 	const updatedBlog = {
+// 		title: "React v17.0.0 and the Roadmap Update",
+// 		author: "Dan Abramov",
+// 		url: "https://reactjs.org/blog/2019/08/08/react-v17.0.0.html",
+// 		likes: "0"
+// 	};
+
+// 	await api
+// 		.post("/api/blogs")
+// 		.send(newBlog)
+// 		.expect(201);
+
+// 	let response = await api.get("/api/blogs");
+// 	const blogId = response.body[response.body.length - 1].id;
+
+// 	response = await api.put(`/api/blogs/${blogId}`, updatedBlog);
+// 	expect(response.body.title).toBe("React v17.0.0 and the Roadmap Update");
+// });
+
 afterAll(() => {
 	mongoose.connection.close();
 });
