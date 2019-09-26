@@ -97,6 +97,25 @@ test("New blog posts without title or url fields get rejected", async () => {
 		.expect(400);
 });
 
+test("Blog posts can be removed", async () => {
+	const newBlog = {
+		title: "React v16.9.0 and the Roadmap Update",
+		author: "Dan Abramov and Brian Vaughn",
+		url: "https://reactjs.org/blog/2019/08/08/react-v16.9.0.html",
+		likes: "0"
+	};
+
+	await api
+		.post("/api/blogs")
+		.send(newBlog)
+		.expect(201);
+
+	const response = await api.get("/api/blogs");
+	const blogId = response.body[response.body.length - 1].id;
+
+	await api.delete(`/api/blogs/${blogId}`).expect(204);
+});
+
 afterAll(() => {
 	mongoose.connection.close();
 });
