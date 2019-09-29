@@ -3,42 +3,23 @@ const supertest = require("supertest");
 const app = require("../app");
 const api = supertest(app);
 const BlogPost = require("../models/blogPost");
-
-const initialBlogs = [
-	{
-		title: "Introducing the New React DevTools",
-		author: "Brian Vaughn",
-		url: "https://reactjs.org/blog/2019/08/15/new-react-devtools.html",
-		likes: "0"
-	},
-	{
-		title: "React v16.8: The One With Hooks",
-		author: "Dan Abramov",
-		url: "https://reactjs.org/blog/2019/02/06/react-v16.8.0.html",
-		likes: "23"
-	},
-	{
-		title: "React v16.6.0: lazy, memo and contextType",
-		author: "Sebastian Markbåge",
-		url: "https://reactjs.org/blog/2018/10/23/react-v-16-6.html",
-		likes: "16"
-	}
-];
+const User = require("../models/user");
+const helper = require("../utils/api_helper");
 
 beforeAll(async () => {
 	await BlogPost.deleteMany({});
 
-	let blogObject = new BlogPost(initialBlogs[0]);
+	let blogObject = new BlogPost(helper.initialBlogs[0]);
 	await blogObject.save();
 
-	blogObject = new BlogPost(initialBlogs[1]);
+	blogObject = new BlogPost(helper.initialBlogs[1]);
 	await blogObject.save();
 
-	blogObject = new BlogPost(initialBlogs[2]);
+	blogObject = new BlogPost(helper.initialBlogs[2]);
 	await blogObject.save();
 });
 
-describe("API returns", () => {
+describe("Blogs API returns", () => {
 	test("blogs as json", async () => {
 		await api
 			.get("/api/blogs")
@@ -66,7 +47,7 @@ describe("API returns", () => {
 	});
 });
 
-describe("API allows", () => {
+describe("Blogs API allows", () => {
 	test("new blog posts to be added", async () => {
 		const newBlog = {
 			title: "React v16.9.0 and the Roadmap Update",
@@ -137,7 +118,7 @@ describe("API allows", () => {
 	// });
 });
 
-describe("API rejects", () => {
+describe("Blogs API rejects", () => {
 	beforeEach(async () => {
 		await BlogPost.deleteMany({});
 	});
@@ -152,6 +133,65 @@ describe("API rejects", () => {
 			.post("/api/blogs")
 			.send(newBlog)
 			.expect(400);
+	});
+});
+
+describe("Users API allows", () => {
+	beforeEach(async () => {
+		await User.deleteMany({});
+		const user = new User({ username: "root", password: "sekret" });
+		await user.save();
+	});
+
+	test("new user creation with a fresh username", async () => {
+		const usersAtStart = await helper.usersInDb();
+
+		const newUser = {
+			username: "mluukkai",
+			name: "Matti Luukkainen",
+			password: "salainen"
+		};
+
+		await api
+			.post("/api/users")
+			.send(newUser)
+			.expect(200)
+			.expect("Content-Type", /application\/json/);
+
+		const usersAtEnd = await helper.usersInDb();
+		expect(usersAtEnd.length).toBe(usersAtStart.length + 1);
+
+		const usernames = usersAtEnd.map(u => u.username);
+		expect(usernames).toContain(newUser.username);
+	});
+});
+
+describe("Users API rejects", () => {
+	beforeEach(async () => {
+		await User.deleteMany({});
+		const user = new User({ username: "root", password: "sekret" });
+		await user.save();
+	});
+
+	test("new user creation if username is already taken", async () => {
+		const usersAtStart = await helper.usersInDb();
+
+		const newUser = {
+			username: "root",
+			name: "Superuser",
+			password: "salainen"
+		};
+
+		const result = await api
+			.post("/api/users")
+			.send(newUser)
+			.expect(400)
+			.expect("Content-Type", /application\/json/);
+
+		expect(result.body.error).toContain("`username` to be unique");
+
+		const usersAtEnd = await helper.usersInDb();
+		expect(usersAtEnd.length).toBe(usersAtStart.length);
 	});
 });
 
