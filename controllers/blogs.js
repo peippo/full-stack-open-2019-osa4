@@ -32,7 +32,12 @@ blogsRouter.post("/", async (request, response, next) => {
 			user: user._id
 		});
 
-		if (blog.title === undefined || blog.url === undefined) {
+		if (
+			blog.title === undefined ||
+			blog.url === undefined ||
+			blog.title === "" ||
+			blog.url === ""
+		) {
 			response.status(400).end();
 		} else {
 			const savedBlog = await blog.save();
